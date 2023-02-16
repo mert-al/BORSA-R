@@ -6,20 +6,22 @@
 <style>
     table, tr, td, th {
         border: 1px solid #000;
-        text-align:center;
+        text-align: center;
     }
 
     td {
-        padding:5px;
+        padding: 5px;
     }
+
     th {
-        padding:10px;
+        padding: 10px;
     }
+
     body {
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        padding:10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
     }
 </style>
 
@@ -36,34 +38,81 @@
 </table>
 
 <script>
-    debugger;
     var connection = $.hubConnection();
-
     var borsaHubProxy = connection.createHubProxy('borsaHub');
+    var eskiVeriler = [];
 
     borsaHubProxy.on('updateBorsaVerileri', function (borsaVerileri) {
-
         var dataContainer = $("#dataContainer");
-
-        dataContainer.html("");
+        var yeniVeriler = [];
 
         for (var i = 1; i < borsaVerileri.length - 1; i++) {
-            dataContainer.append("<tr>")
-            var datarr2 = borsaVerileri[i].split("|");
+            var datarr = borsaVerileri[i].split("|");
+            yeniVeriler.push(datarr);
 
-            for (var j = 0; j < 4; j++) {
-                if (datarr2[j] != "") {
-                    dataContainer.append("<td>" + datarr2[j] + "</td>");
+            var eskiVeriIndex = eskiVeriler.findIndex(function (item) {
+                return item[0] === datarr[0]; // İlk sütunda id olarak kullanıldığı varsayılmıştır.
+            });
+
+            if (eskiVeriIndex === -1) {
+                // Yeni bir veri ekleniyor.
+                dataContainer.append("<tr>");
+                for (var j = 0; j < 4; j++) {
+                    if (datarr[j] != "") {
+                        var tdElement = $("<td>" + datarr[j] + "</td>");
+                        //if (j === 1) {
+                        //    tdElement.css("background-color", "green");
+                        //}
+                        dataContainer.append(tdElement);
+                    }
+                }
+                dataContainer.append("</tr>");
+            }
+            else if (!eskiVeriler[eskiVeriIndex].every(function (item, index) {
+                return item === datarr[index];
+            })) {
+                // Var olan bir veri güncelleniyor.
+                var row = dataContainer.find("tr").eq(eskiVeriIndex + 1);
+                row.empty();
+                for (var j = 0; j < 4; j++) {
+                    if (datarr[j] != "") {
+                        var tdElement = $("<td>" + datarr[j] + "</td>");
+                        if (j === 1) {
+                            var previousPrice = parseFloat(eskiVeriler[eskiVeriIndex][j]);
+                            var currentPrice = parseFloat(datarr[j]);
+                            if (currentPrice > previousPrice) {
+                                row.css("background-color", "green");
+                            }
+                            else if (currentPrice < previousPrice) {
+                                row.css("background-color", "red");
+                            }
+                            else {
+                                row.css("background-color", "white");
+                            }
+                        }
+
+                        row.append(tdElement);
+                        row.delay(3000).queue(function () {
+                            $(this).css("background-color", "");
+                            $(this).dequeue();
+                        });
+                    }
                 }
             }
-
-            dataContainer.append("</tr>");
         }
+
+        // Eski veriler güncelleniyor.
+        eskiVeriler = yeniVeriler;
     });
 
     connection.start().done(function () {
-        debugger;
         // Borsa verilerini almaya başlayın.
         borsaHubProxy.invoke('getBorsaVerileri');
     });
 </script>
+
+
+
+
+
+

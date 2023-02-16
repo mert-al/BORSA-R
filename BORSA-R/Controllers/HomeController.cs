@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Hubs;
-using System.Threading.Tasks;
-using System.Net.Http;
-using System.Net.Http.Headers;
+﻿    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Web;
+    using System.Web.Mvc;
+    using Microsoft.AspNet.SignalR;
+    using Microsoft.AspNet.SignalR.Hubs;
+    using System.Threading.Tasks;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
 
 namespace SİGNAL_R.Controllers
 {
@@ -49,9 +49,10 @@ namespace SİGNAL_R.Controllers
                 Clients.All.updateBorsaVerileri(borsaVerileri.Split('~'));
 
                 // Veri güncellemelerinin arasında bekleme süresi.
-                await Task.Delay(5000);
+                //await Task.Delay(5000);
             }
         }
+        
     }
 
     // API'ye istek atmak için yardımcı bir sınıf oluşturuyoruz.
@@ -69,12 +70,12 @@ namespace SİGNAL_R.Controllers
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var veriler = await response.Content.ReadAsStringAsync();
+                    var veriler = await response.Content.ReadAsStringAsync();   
                     return veriler;
                 }
                 else
                 {
-                    throw new Exception("Borsa verileri alınamadı.");
+                    throw new Exception("Maalesef borsa verilerini alamadım.");
                 }
             }
         }
